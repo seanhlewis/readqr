@@ -1,0 +1,20 @@
+body{
+  text-align:center;
+  font-family:Arial,sans-serif;
+  margin:0;
+  background:#fff;
+}
+
+video{display:none;}
+
+canvas{
+  width:240px;
+  height:240px;
+  display:block;
+  margin:auto;
+}
+
+@font-face{
+  font-family:'Funnel Display';
+  src:url('./FunnelDisplay.ttf');
+}

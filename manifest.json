@@ -1,0 +1,25 @@
+{
+  "name": "ReadQR",
+  "description": "Scans QR codes with the webcam and redirects the current tab.",
+  "version": "1.2.0",
+  "manifest_version": 3,
+  "icons": {
+    "16":  "icon.png",
+    "48":  "icon.png",
+    "128": "icon.png"
+  },
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "permissions": [
+    "tabs"
+  ],
+  "host_permissions": [
+    "https://*/*",
+    "http://*/*"
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  }
+}
