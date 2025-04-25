@@ -1,39 +1,51 @@
-document.addEventListener("DOMContentLoaded", async () => {
+document.addEventListener("DOMContentLoaded", () => {
     const canvas = document.getElementById("canvas");
-    canvas.width = 240;
+    canvas.width  = 240;
     canvas.height = 240;
     canvas.style.transform = "scale(-1,1)";
-  
     const ctx = canvas.getContext("2d", { willReadFrequently: true });
+  
     const video = document.getElementById("video");
-  
-    const FRAMERATE = 12;
-    let lastFrame = 0;
-    let isProcessing = false;
-    let scanPaused = false;
-  
-    const icon = new Image(240, 240);
+    const icon  = new Image(240, 240);
     icon.src = "icon.png";
   
+    const FRAMERATE = 12;
+    let lastFrame   = 0;
+    let processing  = false;
+    let scanPaused  = false;
+    let stream      = null;
+  
+    // Function to start the camera
     async function startCamera() {
+      if (stream) return;  // If the camera is already started, do nothing
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({
+        stream = await navigator.mediaDevices.getUserMedia({
           video: { width: 240, height: 240 }
         });
         video.srcObject = stream;
         await video.play();
+        console.log("Camera started.");
       } catch (err) {
         console.error("Camera error:", err);
       }
     }
   
-    function runDetection() {
+    // Function to stop the camera
+    function stopCamera() {
+      if (!stream) return;
+      stream.getTracks().forEach(t => t.stop());
+      stream = null;
+      console.log("Camera stopped.");
+    }
+  
+    // QR Detection loop
+    function detectLoop() {
       const detect = ts => {
         requestAnimationFrame(detect);
-        if (scanPaused || isProcessing) return;
+        if (scanPaused || processing) return;
         if (ts - lastFrame < 1000 / FRAMERATE) return;
         lastFrame = ts;
-        isProcessing = true;
+        processing = true;
   
         ctx.clearRect(0, 0, 240, 240);
         ctx.drawImage(video, 0, 0, 240, 240);
@@ -48,13 +60,30 @@ document.addEventListener("DOMContentLoaded", async () => {
             setTimeout(() => (scanPaused = false), 2000);
           }
         }
-        isProcessing = false;
+        processing = false;
       };
       requestAnimationFrame(detect);
     }
   
-    await startCamera();
-    if (video.readyState >= video.HAVE_ENOUGH_DATA) runDetection();
-    else video.addEventListener("loadeddata", runDetection, { once: true });
-  });
+    // Start the camera after 2-second delay to ensure stability
+    setTimeout(async () => {
+      await startCamera();
+      if (video.readyState >= video.HAVE_ENOUGH_DATA) detectLoop();
+      else video.addEventListener("loadeddata", detectLoop, { once: true });
+    }, 2000);  // 2-second delay for camera stability
   
+    // Listen for stop camera message from the parent
+    window.addEventListener("message", e => {
+      if (e.data?.type === "stopCamera") stopCamera();
+    });
+  
+    // Stop camera when page is unloading
+    window.addEventListener("beforeunload", stopCamera);
+
+    // Listen for messages from parent to start the camera
+    window.addEventListener("message", (event) => {
+        if (event.data?.type === "startCamera") {
+            startCamera();  // Start the camera when a message is received
+        }
+    });
+});

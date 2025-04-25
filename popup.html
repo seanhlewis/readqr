@@ -3,11 +3,28 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ReadQR</title>
+  <title>QR Scanner</title>
   <link rel="stylesheet" href="styles.css">
 </head>
-<body>
-  <h2 style="font-family:'Funnel Display'">QR Scanner running in pinned tab</h2>
-  <p>Close it and I'll reopen it automatically.</p>
+<body style="background:#ec2566;overflow:hidden;">
+  <h2 id="scanqr" style="font-family:'Funnel Display';display:none;font-size:24px;color:#fff;margin:-8px">
+    Scan QR
+  </h2>
+
+  <div id="header" style="width:100%;padding:6px 0;">
+    <a href="https://utdesigncapstone25.com" target="_top">
+      <img src="designas_logo.png" style="width:80%;">
+    </a>
+  </div>
+
+  <video id="video" autoplay></video>
+  <canvas id="canvas"></canvas>
+
+  <div style="display:flex;justify-content:center;align-items:center;padding:12px;">
+    <img id="collapse" src="arrow.png" style="cursor:pointer;">
+  </div>
+
+  <script src="jsQR.js"></script>
+  <script src="popup.js"></script>
 </body>
 </html>
